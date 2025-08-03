@@ -1,4 +1,3 @@
-# news_scraper.py
 import requests
 from bs4 import BeautifulSoup
 
@@ -8,10 +7,12 @@ def get_news(city, lang):
     }
 
     if lang == "Tamil":
+        # ✅ Go to main site and grab top stories
         url = "https://www.hindutamil.in/"
         response = requests.get(url, headers=headers)
         soup = BeautifulSoup(response.content, "html.parser")
 
+        # 📌 Select top headlines — verified selector
         headlines = soup.select("div.top-news h3 a")
         news_list = []
 
@@ -24,6 +25,7 @@ def get_news(city, lang):
         return news_list
 
     else:
+        # ✅ English headlines from RSS
         url = "https://www.thehindu.com/news/national/feeder/default.rss"
         response = requests.get(url, headers=headers)
         soup = BeautifulSoup(response.content, "xml")
