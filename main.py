@@ -1,45 +1,54 @@
-# main.py
-import streamlit as st
-from news_scraper import get_news
-from weather_fetcher import get_weather
-import pandas as pd
+import requests
+from bs4 import BeautifulSoup
 
-# 🧠 Page Setup
-st.set_page_config(page_title="📰 Hindu News + Weather", layout="centered")
-st.title("📰 The Hindu News + Weather in 1 Click!")
-st.markdown("💎 [Buy Premium - ₹49](https://buymeacoffee.com/sowndarya)")
-st.markdown("Built by [Sowndarya](https://buymeacoffee.com/sowndarya) 💙")
+def get_news(city, lang):
+    headers = {
+        "User-Agent": "Mozilla/5.0"
+    }
 
-# 📍 City Selector
-city = st.selectbox("📍 Choose your city:", ["Chennai", "Bengaluru", "Hyderabad", "Delhi", "Mumbai"])
+    if lang == "Tamil":
+        # ✅ Go to main site and grab top stories
+        url = "https://www.hindutamil.in/"
+        response = requests.get(url, headers=headers)
+        soup = BeautifulSoup(response.content, "html.parser")
 
-# 🌐 Language Selector
-lang = st.selectbox("🌚 Choose language:", ["English", "Tamil"])
+        # 📌 Select top headlines — verified selector
+        headlines = soup.select("div.top-news h3 a")
+        news_list = []
 
-# ⚡️ Main Action Button
-if st.button("⚡️ Fetch Headlines + Weather"):
-    with st.spinner("Fetching live headlines and weather..."):
-        news = get_news(city, lang)
-        weather = get_weather(city)
+        for h in headlines[:10]:
+            title = h.get_text(strip=True)
+            link = h.get("href")
+            full_link = "https://www.hindutamil.in" + link if link.startswith("/") else link
+            news_list.append({"title": title, "link": full_link})
 
-    # 🌤️ Show Weather
-    st.subheader("🌤️ Weather Today")
-    st.write(weather)
+        return news_list
 
-    # 🗞️ Show News
-    st.subheader("🗞️ Top Headlines" + (" (தமிழ்)" if lang == "Tamil" else ""))
-
-    if news:
-        for i, item in enumerate(news, 1):
-            st.markdown(f"**{i}. {item['title']}**")
-            st.caption(f"[மெலும் படிக்க →]({item['link']})" if lang == "Tamil" else f"[Read more →]({item['link']})")
-
-        # 📅 Download CSV
-        df = pd.DataFrame(news)
-        st.download_button("📅 Download News CSV", df.to_csv(index=False), "news.csv")
     else:
-        st.warning("No news available right now. Please try again shortly.")
+        # ✅ English headlines from RSS
+        url = "https://www.thehindu.com/news/national/feeder/default.rss"
+        response = requests.get(url, headers=headers)
+        soup = BeautifulSoup(response.content, "xml")
+        items = soup.find_all("item", limit=20)
 
-    # 🔒 Premium Tease
-    st.markdown("🔒 Want JSON or email delivery? [Buy Premium - ₹49](https://buymeacoffee.com/sowndarya)")
+        news_list = []
+        city_lower = city.lower()
+
+        for item in items:
+            title = item.title.text.strip()
+            link = item.link.text.strip()
+            if city_lower in title.lower():
+                news_list.append({"title": title, "link": link})
+            if len(news_list) == 10:
+                break
+
+        if not news_list:
+            for item in items[:10]:
+                news_list.append({
+                    "title": item.title.text.strip(),
+                    "link": item.link.text.strip()
+                })
+
+        return news_list
+
 
