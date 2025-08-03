@@ -5,24 +5,24 @@ def get_news(city, lang):
     headers = {"User-Agent": "Mozilla/5.0"}
 
     if lang == "Tamil":
-        url = "https://www.hindutamil.in/news/rssfeed"
+        url = "https://www.hindutamil.in/"
         response = requests.get(url, headers=headers)
-        soup = BeautifulSoup(response.content, "xml")
-        items = soup.find_all("item", limit=20)
+        soup = BeautifulSoup(response.content, "html.parser")
 
+        # News cards from homepage
+        cards = soup.select("div.item-details h3 a")[:10]  # top 10 links
         news_list = []
-        for item in items:
-            title = item.title.text.strip()
-            link = item.link.text.strip()
-            # Tamil version: Skip city filter to avoid mismatch
-            news_list.append({"title": title, "link": link})
-            if len(news_list) == 10:
-                break
+
+        for card in cards:
+            title = card.text.strip()
+            link = card["href"]
+            full_link = f"https://www.hindutamil.in{link}" if not link.startswith("http") else link
+            news_list.append({"title": title, "link": full_link})
 
         return news_list
 
     else:
-        # English News - Filter by city
+        # English (unchanged)
         url = "https://www.thehindu.com/news/national/feeder/default.rss"
         response = requests.get(url, headers=headers)
         soup = BeautifulSoup(response.content, "xml")
@@ -39,7 +39,6 @@ def get_news(city, lang):
             if len(news_list) == 10:
                 break
 
-        # fallback to top 10 if nothing matched
         if not news_list:
             for item in items[:10]:
                 news_list.append({
@@ -48,4 +47,3 @@ def get_news(city, lang):
                 })
 
         return news_list
-
