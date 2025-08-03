@@ -16,7 +16,7 @@ city = st.selectbox("📍 Choose your city:", ["Chennai", "Bengaluru", "Hyderaba
 # 🌐 Language Selector
 lang = st.selectbox("🌚 Choose language:", ["English", "Tamil"])
 
-# 🧠 Main Action Button
+# ⚡️ Main Action Button
 if st.button("⚡️ Fetch Headlines + Weather"):
     with st.spinner("Fetching live headlines and weather..."):
         news = get_news(city, lang)
@@ -29,13 +29,17 @@ if st.button("⚡️ Fetch Headlines + Weather"):
     # 🗞️ Show News
     st.subheader("🗞️ Top Headlines" + (" (தமிழ்)" if lang == "Tamil" else ""))
 
-    for i, item in enumerate(news, 1):
-        st.markdown(f"**{i}. {item['title']}**")
-        st.caption(f"[மெலும் படிக்க →]({item['link']})" if lang == "Tamil" else f"[Read more →]({item['link']})")
+    if news:
+        for i, item in enumerate(news, 1):
+            st.markdown(f"**{i}. {item['title']}**")
+            st.caption(f"[மெலும் படிக்க →]({item['link']})" if lang == "Tamil" else f"[Read more →]({item['link']})")
 
-    # 📅 Download CSV
-    df = pd.DataFrame(news)
-    st.download_button("📅 Download News CSV", df.to_csv(index=False), "news.csv")
+        # 📅 Download CSV
+        df = pd.DataFrame(news)
+        st.download_button("📅 Download News CSV", df.to_csv(index=False), "news.csv")
+    else:
+        st.warning("No news available right now. Please try again shortly.")
 
     # 🔒 Premium Tease
     st.markdown("🔒 Want JSON or email delivery? [Buy Premium - ₹49](https://buymeacoffee.com/sowndarya)")
+
