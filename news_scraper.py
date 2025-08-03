@@ -3,28 +3,25 @@ import requests
 from bs4 import BeautifulSoup
 
 def get_news(city, lang):
-    headers = {
-        "User-Agent": "Mozilla/5.0"
-    }
+    headers = {"User-Agent": "Mozilla/5.0"}
 
     if lang == "Tamil":
-        url = "https://www.hindutamil.in"
+        url = "https://www.hindutamil.in/rss/feeder/default.rss"
         response = requests.get(url, headers=headers)
-        soup = BeautifulSoup(response.content, "html.parser")
+        soup = BeautifulSoup(response.content, "xml")
 
-        # New selector for headlines under 'சமீபத்திய செய்திகள்' section
-        news_cards = soup.select("div.article-block h3 a")  # working verified selector
-
+        items = soup.find_all("item", limit=10)
         news_list = []
-        for h in news_cards[:10]:
-            title = h.get_text(strip=True)
-            link = h.get("href")
-            full_link = "https://www.hindutamil.in" + link if link.startswith("/") else link
-            news_list.append({"title": title, "link": full_link})
+
+        for item in items:
+            title = item.title.text.strip()
+            link = item.link.text.strip()
+            news_list.append({"title": title, "link": link})
 
         return news_list
 
     else:
+        # English mode
         url = "https://www.thehindu.com/news/national/feeder/default.rss"
         response = requests.get(url, headers=headers)
         soup = BeautifulSoup(response.content, "xml")
@@ -49,4 +46,5 @@ def get_news(city, lang):
                 })
 
         return news_list
+
 
