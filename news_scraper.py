@@ -1,24 +1,15 @@
 import requests
 from bs4 import BeautifulSoup
 
-def scrape_news():
-    url = "https://www.thehindu.com/news/"
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
-    }
-    response = requests.get(url, headers=headers)
+def get_news():
+    url = "https://www.thehindu.com/news/national/"
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, "html.parser")
+    
+    articles = []
+    for article in soup.find_all("a", class_="story-card75x1-text"):
+        title = article.get_text(strip=True)
+        link = article['href']
+        articles.append({"title": title, "link": link})
 
-    if response.status_code != 200:
-        return [{"Type": "News", "Detail": "Failed to fetch news", "URL": ""}]
-
-    soup = BeautifulSoup(response.text, 'html.parser')
-
-    headlines = soup.select("h3 a")  # May need to tweak this selector
-    news_list = []
-
-    for headline in headlines[:10]:
-        title = headline.text.strip()
-        link = headline['href']
-        news_list.append({"Type": "News", "Detail": title, "URL": link})
-
-    return news_list
+    return articles[:10]
