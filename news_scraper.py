@@ -1,43 +1,34 @@
-def get_news():
-    return [
-        {
-            "title": "India's Mars Orbiter Sends Final Signal",
-            "link": "https://www.thehindu.com/sci-tech/science/mars-orbiter-mission/"
-        },
-        {
-            "title": "Tamil Nadu Launches AI Curriculum in Schools",
-            "link": "https://www.thehindu.com/news/national/tamil-nadu/ai-in-schools/"
-        },
-        {
-            "title": "Heavy Rainfall Predicted in Southern States",
-            "link": "https://www.thehindu.com/news/national/weather-update/"
-        },
-        {
-            "title": "ISRO Prepares for Gaganyaan Crew Module Test",
-            "link": "https://www.thehindu.com/news/national/gaganyaan-test/"
-        },
-        {
-            "title": "Supreme Court Clears Digital Evidence Policy",
-            "link": "https://www.thehindu.com/news/national/supreme-court-digital-evidence/"
-        },
-        {
-            "title": "National AI Strategy Draft Open for Comments",
-            "link": "https://www.thehindu.com/sci-tech/technology/ai-strategy-draft/"
-        },
-        {
-            "title": "New Parliament Building Opens to Public",
-            "link": "https://www.thehindu.com/news/national/parliament-opening/"
-        },
-        {
-            "title": "CBSE Announces Hybrid Exams for 2025",
-            "link": "https://www.thehindu.com/education/cbse-hybrid-exams/"
-        },
-        {
-            "title": "Solar Rooftop Scheme Crosses 1 Million Homes",
-            "link": "https://www.thehindu.com/news/national/solar-rooftop-success/"
-        },
-        {
-            "title": "New Wildlife Sanctuary Declared in Tamil Nadu",
-            "link": "https://www.thehindu.com/news/national/tamil-nadu/wildlife-sanctuary/"
-        }
-    ]
+import requests
+from bs4 import BeautifulSoup
+
+def get_news(city):
+    url = "https://www.thehindu.com/news/national/"
+    headers = {
+        "User-Agent": "Mozilla/5.0"
+    }
+    response = requests.get(url, headers=headers)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    headlines = soup.find_all("a", class_="story-card75x1-text", limit=50)
+
+    news_list = []
+
+    for h in headlines:
+        title = h.get_text(strip=True)
+        link = h.get("href")
+
+        if city.lower() in title.lower():
+            news_list.append({"title": title, "link": link})
+
+        if len(news_list) == 10:
+            break
+
+    if len(news_list) == 0:
+        # fallback to top 10 headlines
+        for h in headlines[:10]:
+            title = h.get_text(strip=True)
+            link = h.get("href")
+            news_list.append({"title": title, "link": link})
+
+    return news_list
+
