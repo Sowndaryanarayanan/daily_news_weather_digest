@@ -3,7 +3,6 @@ from news_scraper import get_news
 from weather_fetcher import get_weather
 from datetime import datetime
 import pandas as pd
-import json
 
 st.set_page_config(page_title="📰 Daily Hindu Headlines + Weather", layout="centered")
 
@@ -14,12 +13,12 @@ st.markdown("Built by [Sowndarya](https://buymeacoffee.com/sowndarya) 💙")
 # Select City
 city = st.selectbox("📍 Choose your city:", ["Chennai", "Bengaluru", "Hyderabad", "Delhi", "Mumbai"])
 
-# Fetch News
+# Fetch News + Weather
 if st.button("🧠 Fetch Headlines + Weather"):
     with st.spinner("Fetching data..."):
         news = get_news()
         weather = get_weather(city)
-        
+
         st.subheader("🌤️ Weather Today")
         st.write(weather)
 
@@ -32,5 +31,6 @@ if st.button("🧠 Fetch Headlines + Weather"):
         df = pd.DataFrame(news)
         st.download_button("📥 Download News CSV", df.to_csv(index=False), "news.csv")
 
-        # Premium JSON
-        st.markdown("🔒 Want this as JSON or email updates? [Buy Premium - ₹49](https://buymeacoffee.com/sowndarya)")
+        # Premium CTA
+        st.markdown("🔒 Want JSON or email reports? [Buy Premium - ₹49](https://buymeacoffee.com/sowndarya)")
+
