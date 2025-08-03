@@ -1,25 +1,36 @@
 import streamlit as st
-from news_scraper import scrape_news
-from weather_scraper import scrape_weather
+from news_scraper import get_news
+from weather_fetcher import get_weather
+from datetime import datetime
 import pandas as pd
+import json
 
-st.set_page_config(page_title="📰 Daily Digest", layout="wide")
-st.title("🌤️ Daily News & Weather Digest")
+st.set_page_config(page_title="📰 Daily Hindu Headlines + Weather", layout="centered")
 
-with st.spinner("Scraping news..."):
-    news = scrape_news()
+st.title("📰 The Hindu News + Weather in 1 Click!")
+st.markdown("💎 [Buy Premium - ₹49](https://buymeacoffee.com/sowndarya)")
+st.markdown("Built by [Sowndarya](https://buymeacoffee.com/sowndarya) 💙")
 
-with st.spinner("Fetching weather info..."):
-    weather = scrape_weather()
+# Select City
+city = st.selectbox("📍 Choose your city:", ["Chennai", "Bengaluru", "Hyderabad", "Delhi", "Mumbai"])
 
-all_data = news + weather
-df = pd.DataFrame(all_data)
+# Fetch News
+if st.button("🧠 Fetch Headlines + Weather"):
+    with st.spinner("Fetching data..."):
+        news = get_news()
+        weather = get_weather(city)
+        
+        st.subheader("🌤️ Weather Today")
+        st.write(weather)
 
-st.subheader("📰 News & Weather Table")
-st.dataframe(df, use_container_width=True)
+        st.subheader("🗞️ Top Headlines")
+        for i, item in enumerate(news, 1):
+            st.markdown(f"**{i}. {item['title']}**")
+            st.caption(f"[Read more]({item['link']})")
 
-# Optional: allow CSV download
-csv = df.to_csv(index=False).encode('utf-8')
-st.download_button("Download Digest CSV", csv, "digest_output.csv", "text/csv")
+        # Save to CSV
+        df = pd.DataFrame(news)
+        st.download_button("📥 Download News CSV", df.to_csv(index=False), "news.csv")
 
-st.success("✅ Daily Digest ready!")
+        # Premium JSON
+        st.markdown("🔒 Want this as JSON or email updates? [Buy Premium - ₹49](https://buymeacoffee.com/sowndarya)")
