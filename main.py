@@ -1,3 +1,4 @@
+# main.py
 import streamlit as st
 from news_scraper import get_news
 from weather_fetcher import get_weather
@@ -13,10 +14,10 @@ st.markdown("Built by [Sowndarya](https://buymeacoffee.com/sowndarya) 💙")
 city = st.selectbox("📍 Choose your city:", ["Chennai", "Bengaluru", "Hyderabad", "Delhi", "Mumbai"])
 
 # 🌐 Language Selector
-lang = st.selectbox("🈳 Choose language:", ["English", "Tamil"])
+lang = st.selectbox("🌚 Choose language:", ["English", "Tamil"])
 
 # 🧠 Main Action Button
-if st.button("⚡ Fetch Headlines + Weather"):
+if st.button("⚡️ Fetch Headlines + Weather"):
     with st.spinner("Fetching live headlines and weather..."):
         news = get_news(city, lang)
         weather = get_weather(city)
@@ -30,12 +31,11 @@ if st.button("⚡ Fetch Headlines + Weather"):
 
     for i, item in enumerate(news, 1):
         st.markdown(f"**{i}. {item['title']}**")
-        st.caption(f"[மேலும் படிக்க →]({item['link']})" if lang == "Tamil" else f"[Read more →]({item['link']})")
+        st.caption(f"[மெலும் படிக்க →]({item['link']})" if lang == "Tamil" else f"[Read more →]({item['link']})")
 
-    # 📥 Download CSV
+    # 📅 Download CSV
     df = pd.DataFrame(news)
-    st.download_button("📥 Download News CSV", df.to_csv(index=False), "news.csv")
+    st.download_button("📅 Download News CSV", df.to_csv(index=False), "news.csv")
 
     # 🔒 Premium Tease
     st.markdown("🔒 Want JSON or email delivery? [Buy Premium - ₹49](https://buymeacoffee.com/sowndarya)")
-
