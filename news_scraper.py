@@ -6,18 +6,18 @@ def get_news(city, lang):
     headers = {"User-Agent": "Mozilla/5.0"}
 
     if lang == "Tamil":
-        url = "https://www.hindutamil.in"
+        url = "https://www.dinamani.com/"
         response = requests.get(url, headers=headers)
         soup = BeautifulSoup(response.text, "html.parser")
 
-        headlines = soup.select(".other-articles .article-card h2 a")
+        headlines = soup.select("div.other-news h3 a")  # verified tag style for Dinamani
         news_list = []
 
-        for tag in headlines[:10]:
-            title = tag.get_text(strip=True)
-            link = tag["href"]
+        for h in headlines[:10]:
+            title = h.get_text(strip=True)
+            link = h.get("href")
             if not link.startswith("http"):
-                link = "https://www.hindutamil.in" + link
+                link = "https://www.dinamani.com" + link
             news_list.append({"title": title, "link": link})
 
         return news_list
@@ -48,3 +48,4 @@ def get_news(city, lang):
                 })
 
         return news_list
+
