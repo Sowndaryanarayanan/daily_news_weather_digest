@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from googletrans import Translator
+from deep_translator import GoogleTranslator
 
 def get_news(city, lang):
     headers = {"User-Agent": "Mozilla/5.0"}
@@ -30,11 +30,11 @@ def get_news(city, lang):
 
     # Translate to Tamil if selected
     if lang == "Tamil":
-        translator = Translator()
         for article in news_list:
-            translated = translator.translate(article["title"], src="en", dest="ta")
-            article["title"] = translated.text
+            try:
+                article["title"] = GoogleTranslator(source='en', target='ta').translate(article["title"])
+            except:
+                article["title"] = "தமிழ் மொழிபெயர்ப்பு கிடைக்கவில்லை"
 
     return news_list
-
 
