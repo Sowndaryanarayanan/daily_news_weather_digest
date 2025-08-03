@@ -1,51 +1,40 @@
-# news_scraper.py
 import requests
 from bs4 import BeautifulSoup
+from googletrans import Translator
 
 def get_news(city, lang):
     headers = {"User-Agent": "Mozilla/5.0"}
+    url = "https://www.thehindu.com/news/national/feeder/default.rss"
 
-    if lang == "Tamil":
-        url = "https://www.dinamani.com/"
-        response = requests.get(url, headers=headers)
-        soup = BeautifulSoup(response.text, "html.parser")
+    response = requests.get(url, headers=headers)
+    soup = BeautifulSoup(response.content, "xml")
+    items = soup.find_all("item", limit=20)
 
-        headlines = soup.select("div.other-news h3 a")  # verified tag style for Dinamani
-        news_list = []
+    news_list = []
+    city_lower = city.lower()
 
-        for h in headlines[:10]:
-            title = h.get_text(strip=True)
-            link = h.get("href")
-            if not link.startswith("http"):
-                link = "https://www.dinamani.com" + link
+    for item in items:
+        title = item.title.text.strip()
+        link = item.link.text.strip()
+        if city_lower in title.lower():
             news_list.append({"title": title, "link": link})
+        if len(news_list) == 10:
+            break
 
-        return news_list
+    if not news_list:
+        for item in items[:10]:
+            news_list.append({
+                "title": item.title.text.strip(),
+                "link": item.link.text.strip()
+            })
 
-    else:
-        # English - The Hindu RSS
-        url = "https://www.thehindu.com/news/national/feeder/default.rss"
-        response = requests.get(url, headers=headers)
-        soup = BeautifulSoup(response.content, "xml")
-        items = soup.find_all("item", limit=20)
+    # Translate to Tamil if selected
+    if lang == "Tamil":
+        translator = Translator()
+        for article in news_list:
+            translated = translator.translate(article["title"], src="en", dest="ta")
+            article["title"] = translated.text
 
-        news_list = []
-        city_lower = city.lower()
+    return news_list
 
-        for item in items:
-            title = item.title.text.strip()
-            link = item.link.text.strip()
-            if city_lower in title.lower():
-                news_list.append({"title": title, "link": link})
-            if len(news_list) == 10:
-                break
-
-        if not news_list:
-            for item in items[:10]:
-                news_list.append({
-                    "title": item.title.text.strip(),
-                    "link": item.link.text.strip()
-                })
-
-        return news_list
 
