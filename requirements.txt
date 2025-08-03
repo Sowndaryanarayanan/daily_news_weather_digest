@@ -1,5 +1,14 @@
-streamlit
-requests
-beautifulsoup4
-pandas
-lxml
+# 📰 Hindu News + Weather Streamlit App
+
+Get latest headlines from The Hindu + Weather for your city in one click!
+
+### Features:
+- Dropdown to select city
+- Real-time news + weather
+- CSV download (Free)
+- JSON/Email (Premium - ₹49): [BuyMeACoffee](https://buymeacoffee.com/sowndarya)
+
+---
+
+👩‍💻 Built by [Sowndarya N.U.](https://buymeacoffee.com/sowndarya)
+
