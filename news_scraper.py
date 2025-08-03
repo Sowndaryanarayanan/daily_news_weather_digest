@@ -6,22 +6,24 @@ def get_news(city, lang):
     headers = {"User-Agent": "Mozilla/5.0"}
 
     if lang == "Tamil":
-        url = "https://www.hindutamil.in/rss/feeder/default.rss"
+        url = "https://www.hindutamil.in"
         response = requests.get(url, headers=headers)
-        soup = BeautifulSoup(response.content, "xml")
+        soup = BeautifulSoup(response.text, "html.parser")
 
-        items = soup.find_all("item", limit=10)
+        headlines = soup.select(".other-articles .article-card h2 a")
         news_list = []
 
-        for item in items:
-            title = item.title.text.strip()
-            link = item.link.text.strip()
+        for tag in headlines[:10]:
+            title = tag.get_text(strip=True)
+            link = tag["href"]
+            if not link.startswith("http"):
+                link = "https://www.hindutamil.in" + link
             news_list.append({"title": title, "link": link})
 
         return news_list
 
     else:
-        # English mode
+        # English - The Hindu RSS
         url = "https://www.thehindu.com/news/national/feeder/default.rss"
         response = requests.get(url, headers=headers)
         soup = BeautifulSoup(response.content, "xml")
@@ -46,5 +48,3 @@ def get_news(city, lang):
                 })
 
         return news_list
-
-
