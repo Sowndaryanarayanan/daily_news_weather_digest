@@ -7,7 +7,7 @@ def get_news(city, lang):
     url = "https://www.thehindu.com/news/national/feeder/default.rss"
 
     response = requests.get(url, headers=headers)
-    soup = BeautifulSoup(response.content, "xml")
+    soup = BeautifulSoup(response.content, "lxml")  # ✅ Fixed parser
     items = soup.find_all("item", limit=20)
 
     news_list = []
@@ -37,4 +37,3 @@ def get_news(city, lang):
                 article["title"] = "தமிழ் மொழிபெயர்ப்பு கிடைக்கவில்லை"
 
     return news_list
-
