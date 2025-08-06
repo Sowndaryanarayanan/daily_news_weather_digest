@@ -3,4 +3,6 @@ requests
 pandas
 beautifulsoup4
 deep-translator==1.11.4
+lxml
+
 
