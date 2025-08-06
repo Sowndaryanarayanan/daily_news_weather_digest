@@ -2,12 +2,18 @@ import streamlit as st
 from news_scraper import get_news
 from weather_fetcher import get_weather
 import pandas as pd
+from datetime import datetime
 
 # 🧠 Page Setup
 st.set_page_config(page_title="📰 Hindu News + Weather", layout="centered")
 st.title("📰 The Hindu News + Weather in 1 Click!")
-st.markdown("💎 [Buy Premium - ₹49](https://buymeacoffee.com/sowndarya)")
-st.markdown("Built by [Sowndarya](https://buymeacoffee.com/sowndarya) 💙")
+
+# 💬 Welcome Message (So your page isn't empty before clicking!)
+st.markdown("Welcome to your daily dose of 🧠 AI-powered news from [The Hindu](https://www.thehindu.com/) and live 🌤️ weather updates.")
+st.info("Select your city and language below, then click the button to fetch real-time data!")
+
+# 🙌 Tip Link (Stripe-friendly!)
+st.markdown("💛 If you enjoy this project, consider [sending a tip](https://buymeacoffee.com/sowndarya) to support my work!")
 
 # 📍 City Selector
 city = st.selectbox("📍 Choose your city:", ["Chennai", "Bengaluru", "Hyderabad", "Delhi", "Mumbai"])
@@ -34,7 +40,12 @@ if st.button("⚡ Fetch Headlines + Weather"):
 
     # 📥 Download CSV
     df = pd.DataFrame(news)
-    st.download_button("📥 Download News CSV", df.to_csv(index=False), "news.csv")
+    filename = f"news_{city}_{datetime.now().strftime('%Y%m%d')}.csv"
+    st.download_button("📥 Download News CSV", df.to_csv(index=False), filename)
 
-    # 🔒 Premium Tease
-    st.markdown("🔒 Want JSON or email delivery? [Buy Premium - ₹49](https://buymeacoffee.com/sowndarya)")
+    # 🔐 Friendly Tip Reminder Again
+    st.markdown("💙 Want more features like JSON/API access or email delivery? [Send a Tip](https://buymeacoffee.com/sowndarya) to help keep this project going!")
+
+# 👣 Footer
+st.markdown("---")
+st.caption("Built with 💻 by [Sowndarya](https://buymeacoffee.com/sowndarya)")
