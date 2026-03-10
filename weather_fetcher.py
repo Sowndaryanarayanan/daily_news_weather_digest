@@ -1,6 +1,5 @@
 import requests
 
-# Coordinates for supported cities
 CITY_COORDS = {
     "chennai": (13.0827, 80.2707),
     "delhi": (28.6139, 77.2090),
@@ -11,29 +10,27 @@ CITY_COORDS = {
 }
 
 def get_weather(city):
+    try:
+        # Normalize the city name
+        city = city.strip().lower()
 
-    # Normalize city input
-    city = city.strip().lower()
+        # Handle alternate spelling
+        if city == "bengaluru":
+            city = "bangalore"
 
-    # Handle alternate spelling
-    if city == "bengaluru":
-        city = "bangalore"
+        # Get coordinates safely
+        lat, lon = CITY_COORDS.get(city, CITY_COORDS["chennai"])
 
-    # Safe lookup (prevents KeyError)
-    coords = CITY_COORDS.get(city)
+        url = (
+            f"https://api.open-meteo.com/v1/forecast?"
+            f"latitude={lat}&longitude={lon}&current_weather=true"
+        )
 
-    # If city not found, default to Chennai
-    if coords is None:
-        coords = CITY_COORDS["chennai"]
+        response = requests.get(url, timeout=10)
+        data = response.json()
 
-    lat, lon = coords
+        return data.get("current_weather", {})
 
-    url = (
-        f"https://api.open-meteo.com/v1/forecast?"
-        f"latitude={lat}&longitude={lon}&current_weather=true"
-    )
-
-    response = requests.get(url)
-    data = response.json()
-
-    return data.get("current_weather", {})
+    except Exception as e:
+        # If ANY error happens, return safe output instead of crashing
+        return {"error": str(e)}
