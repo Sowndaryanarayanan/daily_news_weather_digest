@@ -9,25 +9,29 @@ CITY_COORDS = {
 }
 
 def get_weather(city):
-    
-    # normalize input
+
+    # normalize input (avoid case problems)
     city = city.strip().lower()
 
-    # alias fix
+    # spelling alias
     if city == "bengaluru":
         city = "bangalore"
 
-    # fallback if city not in dictionary
-    if city not in CITY_COORDS:
-        city = "chennai"
+    # safe lookup (prevents KeyError)
+    coords = CITY_COORDS.get(city)
 
-    lat, lon = CITY_COORDS[city]
+    # if city not found, fallback to Chennai
+    if coords is None:
+        coords = CITY_COORDS["chennai"]
+
+    lat, lon = coords
 
     url = (
         f"https://api.open-meteo.com/v1/forecast?"
         f"latitude={lat}&longitude={lon}&current_weather=true"
     )
 
-    data = requests.get(url).json()
+    response = requests.get(url)
+    data = response.json()
 
-    return data["current_weather"]
+    return data.get("current_weather", {})
