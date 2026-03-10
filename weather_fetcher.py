@@ -1,26 +1,28 @@
 import requests
 
+# Coordinates for supported cities
 CITY_COORDS = {
     "chennai": (13.0827, 80.2707),
     "delhi": (28.6139, 77.2090),
     "mumbai": (19.0760, 72.8777),
     "bangalore": (12.9716, 77.5946),
+    "hyderabad": (17.3850, 78.4867),
     "kolkata": (22.5726, 88.3639)
 }
 
 def get_weather(city):
 
-    # normalize input (avoid case problems)
+    # Normalize city input
     city = city.strip().lower()
 
-    # spelling alias
+    # Handle alternate spelling
     if city == "bengaluru":
         city = "bangalore"
 
-    # safe lookup (prevents KeyError)
+    # Safe lookup (prevents KeyError)
     coords = CITY_COORDS.get(city)
 
-    # if city not found, fallback to Chennai
+    # If city not found, default to Chennai
     if coords is None:
         coords = CITY_COORDS["chennai"]
 
